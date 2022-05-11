@@ -1,6 +1,10 @@
 import numpy as np
 
 class NaiveBayes:
+    def __init__(self, alpha=0.01, n_iters=1000):
+        self.alpha = alpha
+        self.n_iters = n_iters
+        
     def fit(self, X, y):
         n_sampels, n_features = X.shape
         self._classes = np.unique(y)
@@ -8,14 +12,14 @@ class NaiveBayes:
         
         # init mean, var, priors
         self._mean = np.zeros((n_classes, n_features), dtype=np.float64)
-        self._var = np.zeros((n_classes, n_features), np.float64)
+        self._var = np.zeros((n_classes, n_features), dtype=np.float64)
         self._priors = np.zeros(n_classes, dtype=np.float64)
         
         for c in self._classes:
             X_c = X[c==y]
-            self._mean[c,:] = X_c.mean(axis=0)
-            self._var[c,:] = X_c.var(axis=0)
-            self._priors[c] = X_c.shape[0] / float(n_sampels)
+            self._mean[c,:] = np.mean(X_c, axis=0)
+            self._var[c,:] = np.var(X_c, axis=0)
+            self._priors[c] = (X_c.shape[0] + self.alpha) / (float(n_sampels) + self.alpha * self.n_iters)
     
     def predict(self, X):
         y_pred = [self._predict(x) for x in X]
@@ -39,6 +43,7 @@ class NaiveBayes:
         denominator = np.sqrt(2 * np.pi * (var**2))
         return numerator / denominator
     
+'''
 # Testing
 if __name__ == "__main__":
     # Imports
@@ -57,3 +62,4 @@ if __name__ == "__main__":
     predictions = nb.predict(X_test)
 
     print("Naive Bayes classification accuracy", accuracy(y_test, predictions))
+    '''
